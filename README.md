@@ -1,20 +1,15 @@
 # TacotronV2 + WaveRNN
 
----------------------------------
-**update at 2020-10-3 添加微调分支[adaptive](https://github.com/lturing/tacotronv2_wavernn_chinese/tree/adaptive)**
----------------------------------
-
 1. 开源中文语音数据集[标贝](https://www.data-baker.com/open_source.html)(女声)训练中文[TacotronV2](https://github.com/Rayhane-mamah/Tacotron-2)，实现中文到声学特征(Mel)转换的声学模型。在GTA模式下，利用训练好的TacotronV2合成标贝语音数据集中中文对应的Mel特征，作为声码器[WaveRNN](https://github.com/fatchord/WaveRNN)的训练数据。在合成阶段，利用TactornV2和WaveRNN合成高质量、高自然度的中文语音。
 2. 从[THCHS-30](http://www.openslr.org/18/)任选一个speaker的语音数据集，微调TacotronV2中的部分参数，实现说话人转换[branch adaptive](https://github.com/lturing/tacotronv2_wavernn_chinese/tree/adaptive)。
 3. Tensorflow serving + Flask 部署TacotronV2中文语音合成服务。   
-
-由于[TacotronV2](https://github.com/Rayhane-mamah/Tacotron-2)[TacotronV2](https://github.com/mozilla/TTS)中采用Location sensitive attention，对长句字的建模能力不好(漏读、重复)，尝试了[GMM attention](https://github.com/lturing/tacotronv2_wavernn_chinese/blob/master/tacotron/models/gmm_attention.py)、[Discrete Graves Attention](https://github.com/lturing/tacotronv2_wavernn_chinese/blob/master/tacotron/models/graves_attention.py)[issue](https://github.com/mozilla/TTS/issues/346)、[Forward attention](https://github.com/lturing/tacotronv2_wavernn_chinese/blob/master/tacotron/models/forward_attention.py)，能有效地解决对长句的建模能力，加快模型收敛速度。
+4.
+采用文本分段处理和多线程方法，能有效地解决对长句的建模能力，加快模型收敛速度。
 
 ## **[demo page](https://lturing.github.io/tacotronv2_wavernn_chinese/)**
 
 **tensorflow-gpu的版本为1.14.0**
-
-## 测试语音合成的效果       
+  
 **参照[requirements.txt](https://github.com/lturing/tacotronv2_wavernn_chinese/blob/master/requirements.txt)**安装相应的库      
 ```bash
 git clone https://github.com/lturing/tacotronv2_wavernn_chinese.git
@@ -75,12 +70,7 @@ python tacotron_synthesize.py --text '国内知名的视频弹幕网站，这里
 
 
 ### 改进部分
-> 由于[TacotornV2]()中采用的注意力机制是[Location sensitive attention](https://github.com/lturing/tacotronv2_wavernn_chinese/blob/master/tacotron/models/location_sensitive_attention.py)，对长句子的建模能力不太好，尝试了以下注意力机制：    
-* [Guassian mixture attention](https://github.com/lturing/tacotronv2_wavernn_chinese/blob/master/tacotron/models/gmm_attention.py)
-* [Discretized Graves attention](https://github.com/lturing/tacotronv2_wavernn_chinese/blob/master/tacotron/models/graves_attention.py)
-* [Forward attention](https://github.com/lturing/tacotronv2_wavernn_chinese/blob/master/tacotron/models/forward_attention.py)
-
-> 由于语音合成中的音素(拼音)到声学参数(Mel频谱)是从左到右的单调递增的对应关系，特别地，在合成阶段，对[forward attention](https://github.com/lturing/tacotronv2_wavernn_chinese/blob/master/tacotron/models/forward_attention.py#L171)中的alignments的计算过程的特殊处理，能进一步提高模型对长句子的语音合成效果，以及控制语速。
+以句号进行分割长文本可以实现处理任意长度的文本朗读，时长不限！耗费资源正常！
 
 ## 说话人转换(speaker adaptive)
 [TactronV2](https://github.com/Rayhane-mamah/Tacotron-2)支持finetune，固定decoder层前的参数(embedding层、CHBG、encoder层等)，用新数据集(数据量很少)训练从checkpoint中恢复的模型，达到speaker adpative的目的。
